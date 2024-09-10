@@ -1,0 +1,63 @@
+                  models
+
+service
+serviceUsage
+payment
+LoyaltyProgram
+Feedback
+Billing
+inventory
+suppliers 
+
+
+                    tables
+inventory
+
+
+
+
+
+
+
+
+
+
+public function stripePost(Request $request)
+    {
+        // Assume the current user ID is retrieved from the request
+        $userId = Auth::user()->id;
+
+        // Set the Stripe API key
+        Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        // Create a customer in Stripe and associate your user ID in the metadata
+        $customer = Stripe\Customer::create([
+            "address" => $userId->Address,
+            "email" => $userId->Email, // Use the current user's email
+            "name" => $userId->FirstName + $userId->LastName  ,   // Use the current user's name
+            "source" => $request->input('stripeToken'),
+            "metadata" => [
+                "user_id" => $userId,  // Store your user ID in the metadata
+            ],
+        ]);
+
+        // Create a charge
+        $charge = Stripe\Charge::create([
+        "amount" => 100 * 100,
+        "currency" => "usd",
+        "customer" => $customer->id,
+        "description" => "Test payment from itsolutionstuff.com.",
+        "shipping" => [
+            "name" => "Jenny Rosen",
+            "address" => [
+                "line1" => "510 Townsend St",
+                "postal_code" => "98140",
+                "city" => "San Francisco",
+                "state" => "CA",
+                "country" => "US",
+            ],
+        ]
+    ]);
+        // Return a JSON response with the payment details
+        return response()->json(['success' => true, 'charge' => $charge]);
+    }
