@@ -9,13 +9,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\GuestResource;
+use App\ReposatoryInterface\GuestRepositoryInterface;
 
 class GuestController extends Controller
 {
     use Api_designtrait;
+    protected $guestRepository;
+
+    public function __construct(GuestRepositoryInterface $guestRepository)
+    {
+        $this->guestRepository = $guestRepository;
+    }
+
     public function index()
     {
-        $guests = Guest::paginate(10);
+        $guests = $this->guestRepository->all(10);
         $data = [
             'guests' => GuestResource::collection($guests),
             'pagination' => [
@@ -31,25 +39,18 @@ class GuestController extends Controller
                 'path' => $guests->path(),
             ]
         ];
-        return $this->api_design(200,"All Guests", $data);
+        return $this->api_design(200, "All Guests", $data);
     }
+
     public function register(GuestRequest $request)
     {
-        $Guest = Guest::create([
-            'FirstName'=>$request->FirstName,
-        'LastName'=>$request->LastName ,
-        'Email'=>$request->Email ,
-        'Password'=>Hash::make($request->Password) ,
-        'Phone'=>$request->Phone ,
-        'Address'=>$request->Address ,
-        'DateOfBirth'=>$request->DateOfBirth ,
-        'LoyaltyPoints'=>$request->LoyaltyPoints ,
-        'MembershipLevel'=>$request->MembershipLevel,
-        ]);
+        $Guest = $this->guestRepository->create($request->all());
         return $this->api_design(201, 'Guest registered successfully', new GuestResource($Guest));
     }
-    public function store(Request $request) {
-        $Guest = Guest::where('Email', $request->Email)->first();
+
+    public function store(Request $request)
+    {
+        $Guest = $this->guestRepository->findByEmail($request->Email);
 
         if ($Guest && Hash::check($request->Password, $Guest->Password)) {
             $deviceName = $request->userAgent();
@@ -61,39 +62,26 @@ class GuestController extends Controller
         return $this->api_design(401, 'Invalid credentials');
     }
 
-    public function show(Guest $Guest)
+    public function show($id)
     {
+        $Guest = $this->guestRepository->find($id);
         return $this->api_design(200, 'Selected Guest', new GuestResource($Guest));
     }
 
-
-    public function update(GuestRequest $request,$id)
+    public function update(GuestRequest $request, $id)
     {
-        $updateSuccessful =Guest::find($id);
-        $updateSuccessful->update([
-            'FirstName'=>$request->FirstName,
-            'LastName'=>$request->LastName ,
-            'Email'=>$request->Email ,
-            'Password'=>Hash::make($request->Password) ,
-            'Phone'=>$request->Phone ,
-            'Address'=>$request->Address ,
-            'DateOfBirth'=>$request->DateOfBirth ,
-            'LoyaltyPoints'=>$request->LoyaltyPoints ,
-            'MembershipLevel'=>$request->MembershipLevel,
-        ]);
-        if ($updateSuccessful) {
-            return $this->api_design(200, 'Guest updated successfully', new GuestResource($updateSuccessful));
+        $Guest = $this->guestRepository->update($id, $request->all());
+
+        if ($Guest) {
+            return $this->api_design(200, 'Guest updated successfully', new GuestResource($Guest));
         }
+
         return $this->api_design(500, 'Guest update failed');
     }
 
-    /**
-     * Remove the specified Guest resource from storage.
-     */
     public function destroy($id)
     {
-        $Guest = Guest::find($id);
-        $Guest->delete();
+        $Guest = $this->guestRepository->delete($id);
         return $this->api_design(200, 'Guest deleted successfully', new GuestResource($Guest));
     }
 }

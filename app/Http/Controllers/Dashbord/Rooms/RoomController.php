@@ -2,81 +2,74 @@
 
 namespace App\Http\Controllers\Dashbord\Rooms;
 
-use App\Models\Room;
 use App\Http\Traits\ImagesTrait;
 use App\Http\Requests\RoomRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RoomResource;
 use App\Http\Traits\Api_designtrait;
-
+use App\ReposatoryInterface\RoomRepositoryInterface;
 
 class RoomController extends Controller
 {
     use ImagesTrait;
     use Api_designtrait;
+
+    protected $roomRepository;
+
+    public function __construct(RoomRepositoryInterface $roomRepository)
+    {
+        $this->roomRepository = $roomRepository;
+    }
+
     public function store(RoomRequest $request)
-{
+    {
+        $filename = time() . '.' . $request->image->getClientOriginalExtension();
+        $this->uploadimg($request->image, $filename, "Rooms");
 
-    $filename = time() . '.' . $request->image->getClientOriginalExtension();
-    $this->uploadimg($request->image,$filename,"Rooms");
+        $data = $request->all();
+        $data['image'] = $filename;
 
-    $Room = Room::create([
-        'RoomNumber'=>$request->RoomNumber ,
-        'RoomTypeID' =>$request->RoomTypeID ,
-        'Capacity'=>$request->Capacity ,
-        'PricePerNight'=>$request->PricePerNight ,
-        'Status'=>$request->Status ,
-        'Floor'=>$request->Floor ,
-        'ViewType'=>$request->ViewType ,
-        'Features'=>$request->Features ,
-        'image' =>$filename
-        ]);
+        $Room = $this->roomRepository->create($data);
+
         return $this->api_design(201, 'Room added successfully', new RoomResource($Room));
-}
-public function show(Room $Room)
-{
-    return $this->api_design(200, 'Selected Room', new RoomResource($Room));
-}
-public function update(RoomRequest $request,$id)
-{
-    $updateSuccessful =Room::find($id);
-    if($request->hasFile('image')){
-        $image = $request->file('image');
+    }
+
+    public function show($id)
+    {
+        $Room = $this->roomRepository->find($id);
+        return $this->api_design(200, 'Selected Room', new RoomResource($Room));
+    }
+
+    public function update(RoomRequest $request, $id)
+    {
+        $Room = $this->roomRepository->find($id);
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
             $fileName = time() . '.' . $image->getClientOriginalExtension();
 
-            $oldImagePath =$updateSuccessful->image;
-
-            $this->uploadimg($image, $fileName, 'Rooms', $oldImagePath);
+            // Remove the old image and upload the new one
+            $this->uploadimg($image, $fileName, 'Rooms', $Room->image);
         } else {
-            $fileName = $updateSuccessful->image;
+            $fileName = $Room->image;
         }
-    $updateSuccessful->update([
-        'RoomNumber'=>$request->RoomNumber ,
-        'RoomTypeID' =>$request->RoomTypeID ,
-        'Capacity'=>$request->Capacity ,
-        'PricePerNight'=>$request->PricePerNight ,
-        'Status'=>$request->Status ,
-        'Floor'=>$request->Floor ,
-        'ViewType'=>$request->ViewType ,
-        'Features'=>$request->Features ,
-        'image' =>$fileName
-        ]);
-    if ($updateSuccessful) {
-        return $this->api_design(200, 'Room updated successfully', new RoomResource($updateSuccessful));
-    }
-    return $this->api_design(500, 'Room update failed');
-}
 
-/**
- * Remove the specified staff resource from storage.
- */
-public function destroy($id)
-{
-    $Room =Room::find($id);
-    $oldfile = $Room->image;
-    $oldfilePath = public_path($oldfile);
-    unlink($oldfilePath);
-    $Room->delete();
-    return $this->api_design(200, 'Room deleted successfully', new RoomResource($Room));
-}
+        $data = $request->all();
+        $data['image'] = $fileName;
+
+        $updatedRoom = $this->roomRepository->update($id, $data);
+
+        if ($updatedRoom) {
+            return $this->api_design(200, 'Room updated successfully', new RoomResource($updatedRoom));
+        }
+
+        return $this->api_design(500, 'Room update failed');
+    }
+
+    public function destroy($id)
+    {
+        $Room = $this->roomRepository->delete($id);
+
+        return $this->api_design(200, 'Room deleted successfully', new RoomResource($Room));
+    }
 }

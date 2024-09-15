@@ -8,24 +8,28 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use App\Http\Requests\RoomTypeRequest;
 use App\Http\Resources\RoomTypeResource;
-
+use App\ReposatoryInterface\RoomTypeRepositoryInterface;
 
 class RoomTypeController extends Controller
 {
     use Api_designtrait;
+    protected $roomTypeRepository;
+    public function __construct(RoomTypeRepositoryInterface $roomTypeRepository ) {
+        $this->roomTypeRepository = $roomTypeRepository;
+    }
     public function store(RoomTypeRequest $request)
 {
-        $RoomType = RoomType::create($request->validated());
+        $RoomType = $this->roomTypeRepository->create($request->all());
         return $this->api_design(201, 'RoomType added successfully', new RoomTypeResource($RoomType));
 }
-public function show(RoomType $RoomType)
+public function show($id)
 {
+    $RoomType = $this->roomTypeRepository->find($id);
     return $this->api_design(200, 'Selected RoomType', new RoomTypeResource($RoomType));
 }
 public function update(RoomTypeRequest $request,$id)
 {
-    $updateSuccessful =RoomType::find($id);
-    $updateSuccessful->update($request->validated());
+    $updateSuccessful =$this->roomTypeRepository->update( $id, $request->all());
     if ($updateSuccessful) {
         return $this->api_design(200, 'RoomType updated successfully', new RoomTypeResource($updateSuccessful));
     }
@@ -37,8 +41,7 @@ public function update(RoomTypeRequest $request,$id)
  */
 public function destroy($id)
 {
-    $RoomType =RoomType::find($id);
-    $RoomType->delete();
+    $RoomType =$this->roomTypeRepository->delete($id);
     return $this->api_design(200, 'RoomType deleted successfully', new RoomTypeResource($RoomType));
 }
 }

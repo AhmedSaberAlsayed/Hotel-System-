@@ -2,50 +2,44 @@
 
 namespace App\Http\Controllers\Dashbord;
 
-
 use Stripe;
 use Carbon\Carbon;
-use App\Models\Payment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Api_designtrait;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\PaymentRequest;
+use App\Http\Resources\PaymentResource;
+use App\RepositoryInterface\PaymentRepositoryInterface;
 
 class PaymentController extends Controller
 {
+    use Api_designtrait;
+    protected $paymentRepository;
+
+    public function __construct(PaymentRepositoryInterface $paymentRepository)
+    {
+        $this->paymentRepository = $paymentRepository;
+    }
+
     public function stripePost(Request $request)
     {
-        // Assume the current user ID is retrieved from the request
-        // $userId = Auth::user()->id;
-
-        // Set the Stripe API key
         Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        // Create a customer in Stripe and associate your user ID in the metadata
         $userId = Auth()->user();
-        $customer = Stripe\Customer::create(array(
-
+        $customer = Stripe\Customer::create([
             "address" => [
-
-                    "line1" => "Virani Chowk",
-
-                    "postal_code" => "360001",
-
-                    "city" => "Rajkot",
-
-                    "state" => "GJ",
-
-                    "country" => "IN",
-                ],
-
+                "line1" => "Virani Chowk",
+                "postal_code" => "360001",
+                "city" => "Rajkot",
+                "state" => "GJ",
+                "country" => "IN",
+            ],
             "email" => $userId->Email,
+            "name" => $userId->FirstName . ' ' . $userId->LastName,
+            "source" => "tok_visa",
+        ]);
 
-            "name" => $userId->FirstName + $userId->LastName,
-                "source" => "tok_visa",
-        ));
-        // Create a charge
         $charge = Stripe\Charge::create([
             "amount" => $request->input('amount') * 100,
             "currency" => $request->input('currency'),
@@ -62,124 +56,60 @@ class PaymentController extends Controller
                 ],
             ]
         ]);
-        $payment = Payment::create([
-        'BookingID'=> 1 ,
-        'PaymentDate'=> Carbon::now(),
-        'Amount'=>$charge->amount,
-        'PaymentMethod'=>"Credit Card",
-        'PaymentStatus' => $charge->status,
-        'InvoiceNumber' => $charge->id,
+
+        $payment = $this->paymentRepository->create([
+            'BookingID' => 1,
+            'PaymentDate' => Carbon::now(),
+            'Amount' => $charge->amount,
+            'PaymentMethod' => "Credit Card",
+            'PaymentStatus' => $charge->status,
+            'InvoiceNumber' => $charge->id,
         ]);
-        // Return a JSON response with the payment details
-        return response()->json(['success' => true, 'payment' => $payment]);
+        return $this->api_design( 200, ' payment Added succesully ', new PaymentResource($payment));
+
     }
 
-/**
-     * Display a listing of the payments.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index()
     {
-        $payments = Payment::with('room','guest')->get();
-        return response()->json($payments,  );
+        $payments = $this->paymentRepository->all();
+        return $this->api_design( 200, 'All payments ', new PaymentResource($payments));
     }
+
     public function store(PaymentRequest $request)
     {
-        DB::beginTransaction();
+        $payment = $this->paymentRepository->create($request->validated());
+        return $this->api_design( 200, ' payment Add succsfuly ', new PaymentResource($payment));
 
-        try {
-            $payment = Payment::create($request->validated());
-            DB::commit();
-
-            return response()->json($payment,);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Payment creation failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Payment creation failed'], );
-        }
     }
 
-    /**
-     * Display the specified payment.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show($id)
     {
-        $payment = Payment::with('reservation.customer')->find($id);
+        $payment = $this->paymentRepository->find($id);
 
         if (!$payment) {
-            return response()->json(['error' => 'Payment not found'],  );
+            return $this->api_design( 404, 'Payment not found');
         }
+        return $this->api_design( 200, 'your payment ', new PaymentResource($payment));
 
-        return response()->json($payment,  );
     }
 
-    /**
-     * Update the specified payment in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(PaymentRequest $request, $id)
     {
-        $payment = Payment::find($id);
+        $payment = $this->paymentRepository->update($id, $request->validated());
 
         if (!$payment) {
-            return response()->json(['error' => 'Payment not found'],  );
+            return $this->api_design( 404, 'Payment not found');
         }
-
-        DB::beginTransaction();
-
-        try {
-            $payment->update($request->validated());
-
-            // Example of broadcasting an event (if needed)
-            // event(new PaymentUpdated($payment));
-
-            DB::commit();
-
-            return response()->json($payment,  );
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Payment update failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Payment update failed'], );
-        }
+        return $this->api_design( 200, ' payment updated Succesfully ', new PaymentResource($payment));
     }
 
-    /**
-     * Remove the specified payment from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy($id)
     {
-        $payment = Payment::find($id);
+        $payment = $this->paymentRepository->delete($id);
 
         if (!$payment) {
-            return response()->json(['error' => 'Payment not found'],  );
+            return $this->api_design( 404, 'Payment not found');
         }
-
-        DB::beginTransaction();
-
-        try {
-            $payment->delete();
-
-            // Example of broadcasting an event (if needed)
-            // event(new PaymentDeleted($payment));
-
-            DB::commit();
-
-            return response()->json(['message' => 'Payment deleted successfully'],  );
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Payment deletion failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Payment deletion failed'], );
-        }
+        return $this->api_design( 200, 'Payment deleted successfully ', new PaymentResource($payment));
     }
-
 }

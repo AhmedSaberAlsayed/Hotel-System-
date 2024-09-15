@@ -36,7 +36,6 @@ if ($activeBooking) {
                     $totalPrice += $serviceTotalPrice;
                 }
             }
-
             $booking->GuestID = $request->GuestID;
             $booking->RoomID = $request->RoomID;
             $booking->SpecialRequests = $request->SpecialRequests;
