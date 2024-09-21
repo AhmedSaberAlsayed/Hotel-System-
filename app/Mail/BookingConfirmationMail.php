@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class BookingConfirmationMail extends Mailable
 {
@@ -17,7 +16,7 @@ class BookingConfirmationMail extends Mailable
      * Create a new message instance.
      */
     public $booking;
-    public function __construct(Booking $booking)
+    public function __construct($booking)
     {
         $this->booking = $booking;
     }
@@ -39,9 +38,9 @@ class BookingConfirmationMail extends Mailable
     {
         return new Content(
             view: 'emails.booking_confirmation',
-            with:[
-                'booking' => $this->booking,
-            ],
+            // with:[
+            //     'booking' => $this->booking,
+            // ],
         );
     }
 
@@ -54,11 +53,13 @@ class BookingConfirmationMail extends Mailable
     {
         return [];
     }
-    // public function build()
-    // {
-    //     return $this->view('emails.booking_confirmation')
-    //                 ->subject('Your Booking Confirmation')
-    //                 ->with([
-    //                 ]);
-    // }
+    public function build()
+    {
+        return $this->view('emails.booking_confirmation')
+                    ->subject('Your Booking Confirmation')
+                    ->with([
+                        'booking' => $this->booking,
+
+                    ]);
+    }
 }

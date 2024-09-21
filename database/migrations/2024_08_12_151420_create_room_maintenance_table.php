@@ -11,7 +11,6 @@ class CreateRoomMaintenanceTable extends Migration
         Schema::create('room_maintenance', function (Blueprint $table) {
             $table->id('MaintenanceID');
             $table->foreignId('RoomID')->references('RoomID')->on('rooms');
-            $table->foreignId('StaffID')->references('StaffID')->on('staff');
             $table->date('MaintenanceDate');
             $table->string('Issue');
             $table->text('Description')->nullable();

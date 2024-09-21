@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use App\Http\Requests\FeedbackRequest;
 use App\Http\Resources\FeedbackResource;
-use App\ReposatoryInterface\FeedbackRepositoryInterface;
+use App\RepositoryInterface\FeedbackRepositoryInterface;
 
 class FeedbackController extends Controller
 {

@@ -1,5 +1,5 @@
 <?php
-namespace App\ReposatoryInterface;
+namespace App\RepositoryInterface;
 
 interface RoomTypeRepositoryInterface{
 

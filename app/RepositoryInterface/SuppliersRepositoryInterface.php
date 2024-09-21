@@ -1,12 +1,10 @@
 <?php
-
 namespace App\RepositoryInterface;
 
-interface FeedbackRepositoryInterface
-{
-    public function all();
-    public function create(array $data);
+interface SuppliersRepositoryInterface{
+    public function all($paginate);
     public function find($id);
+    public function create(array $data);
     public function update($id, array $data);
     public function delete($id);
 }

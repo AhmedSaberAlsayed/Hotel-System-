@@ -1,8 +1,9 @@
-<?php 
+<?php
 
-namespace App\ReposatoryInterface;
+namespace App\RepositoryInterface;
 
 interface RoomRepositoryInterface{
+    public function all($data);
     public function create(array $data);
     public function find($id);
     public function update($id, array $data);

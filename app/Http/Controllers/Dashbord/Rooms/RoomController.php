@@ -7,7 +7,7 @@ use App\Http\Requests\RoomRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RoomResource;
 use App\Http\Traits\Api_designtrait;
-use App\ReposatoryInterface\RoomRepositoryInterface;
+use App\RepositoryInterface\RoomRepositoryInterface;
 
 class RoomController extends Controller
 {
@@ -21,6 +21,11 @@ class RoomController extends Controller
         $this->roomRepository = $roomRepository;
     }
 
+    public function index()
+    {
+        $maintenances = $this->roomRepository->all(10);
+        return response()->json($maintenances);
+    }
     public function store(RoomRequest $request)
     {
         $filename = time() . '.' . $request->image->getClientOriginalExtension();
@@ -42,16 +47,14 @@ class RoomController extends Controller
 
     public function update(RoomRequest $request, $id)
     {
-        $Room = $this->roomRepository->find($id);
-
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $fileName = time() . '.' . $image->getClientOriginalExtension();
-
-            // Remove the old image and upload the new one
-            $this->uploadimg($image, $fileName, 'Rooms', $Room->image);
-        } else {
-            $fileName = $Room->image;
+        try {
+            $Room = $this->roomRepository->find($id);
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $fileName = time() . '.' . $image->getClientOriginalExtension();
+                $this->uploadimg($request->image, $fileName, "Rooms", $Room->image);
+            } else {
+                $fileName = $Room->image;
         }
 
         $data = $request->all();
@@ -59,11 +62,11 @@ class RoomController extends Controller
 
         $updatedRoom = $this->roomRepository->update($id, $data);
 
-        if ($updatedRoom) {
             return $this->api_design(200, 'Room updated successfully', new RoomResource($updatedRoom));
-        }
 
-        return $this->api_design(500, 'Room update failed');
+        } catch (\Throwable $th) {
+            return $this->api_design(500, 'Room updated faild', null,$th->getMessage());
+    }
     }
 
     public function destroy($id)

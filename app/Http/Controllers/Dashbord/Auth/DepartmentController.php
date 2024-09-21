@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use App\Http\Requests\DepartmentRequest;
 use App\Http\Resources\DepartmentResource;
-use App\ReposatoryInterface\DepartmentRepositoryInterface;
+use App\RepositoryInterface\DepartmentRepositoryInterface;
 
 class DepartmentController extends Controller
 {
@@ -22,7 +22,7 @@ class DepartmentController extends Controller
     public function index()
     {
         $departments = $this->departmentRepository->all(20);
-        return $this->api_design(201, 'All Departments successfully', DepartmentResource::collection($departments));
+        return $this->api_design(201, 'All Departments successfully', $departments);
     }
 
     public function store(DepartmentRequest $request)

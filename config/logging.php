@@ -51,10 +51,15 @@ return [
     */
 
     'channels' => [
+
+        'flare' => [
+            'driver' => 'flare',
+            'level' => 'critical', // The minimum log level to send to Flare
+        ],
+
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
-            'ignore_exceptions' => false,
+            'channels' => ['daily', 'flare'],
         ],
 
         'single' => [

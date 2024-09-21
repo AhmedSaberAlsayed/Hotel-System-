@@ -2,11 +2,12 @@
 
 namespace App\RepositoryInterface;
 
-interface FeedbackRepositoryInterface
+
+interface BookingRepositoryInterface
 {
-    public function all();
-    public function create(array $data);
+    public function all($paginate);
     public function find($id);
+    public function create($request, $data);
     public function update($id, array $data);
     public function delete($id);
 }

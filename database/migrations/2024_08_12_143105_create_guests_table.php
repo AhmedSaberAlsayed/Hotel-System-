@@ -17,6 +17,8 @@ class CreateGuestsTable extends Migration
             $table->string('Password');
             $table->string('Address');
             $table->date('DateOfBirth');
+            $table->string('socialID')->nullable();
+            $table->string('socialType')->nullable();
             $table->integer('LoyaltyPoints')->default(0);
             $table->string('MembershipLevel')->default('Bronze');
             $table->timestamps();

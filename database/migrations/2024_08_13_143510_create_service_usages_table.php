@@ -12,7 +12,6 @@ class CreateServiceUsagesTable extends Migration
             $table->id('ServiceUsageID');
             $table->foreignId('BookingID')->references('BookingID')->on('bookings');
             $table->foreignId('ServiceID')->references('ServiceID')->on('services');
-            $table->foreignId('StaffID')->references('StaffID')->on('staff')->nullable();
             $table->date('UsageDate');
             $table->integer('Quantity')->default(1);
             $table->decimal('TotalCost', 8, 2);

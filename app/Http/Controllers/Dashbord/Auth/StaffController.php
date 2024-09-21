@@ -21,8 +21,8 @@ class StaffController extends Controller
 
     public function index()
     {
-        $Staffs = $this->staffRepository->all(5);
-        return $this->api_design(201, 'All Staffs successfully', StaffResource::collection($Staffs));
+        $Staffs = $this->staffRepository->all(10);
+        return $this->api_design(201, 'All Staffs successfully', $Staffs);
     }
 
     public function store(StaffRequest $request)

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use App\Http\Requests\ServiceRequest;
 use App\Http\Resources\ServiceResource;
-use App\ReposatoryInterface\ServiceRepositoryInterface;
+use App\RepositoryInterface\ServiceRepositoryInterface;
  
 class ServiceController extends Controller
 {

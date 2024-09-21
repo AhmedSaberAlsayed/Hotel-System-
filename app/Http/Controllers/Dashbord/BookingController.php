@@ -4,31 +4,34 @@ namespace App\Http\Controllers\Dashbord;
 
 use Carbon\Carbon;
 use App\Models\Booking;
-use App\Services\BookingService;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use App\Http\Requests\BookingRequest;
 use App\Http\Resources\BookingResource;
 use App\Jobs\SendBookingConfirmationEmail;
+use App\RepositoryInterface\BookingRepositoryInterface;
 
 class BookingController extends Controller
 {
     use Api_designtrait;
-    protected $bookingService;
+    protected $bookingRepo;
 
-    public function __construct(BookingService $bookingService)
+    public function __construct(BookingRepositoryInterface $bookingRepo)
     {
-        $this->bookingService = $bookingService;
+        $this-> bookingRepo = $bookingRepo;
     }
 
     public function store(BookingRequest $request, Booking $booking)
     {
+
+
         try {
             // searvice code for bookings
-            $booking = $this->bookingService->store($request, $booking);
+            $booking = $this-> bookingRepo->create($request, $booking);
             // queue code for bookings mails
-            $guest = $booking->guest;
-        $job= (new SendBookingConfirmationEmail($guest->Email, $booking))->delay(Carbon::now()->addSeconds(20));
+            $guest = $booking->guest->Email;
+
+        $job= (new SendBookingConfirmationEmail($guest, $booking))->delay(Carbon::now()->addSeconds(5));
             dispatch($job);
 
         return $this->api_design(201, 'Booking added successfully', new BookingResource($booking));

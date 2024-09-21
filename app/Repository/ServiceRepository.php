@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Models\Service;
-use App\ReposatoryInterface\ServiceRepositoryInterface;
+use App\RepositoryInterface\ServiceRepositoryInterface;
 
 class ServiceRepository implements ServiceRepositoryInterface
 {

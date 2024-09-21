@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Dashbord\Auth;
 
-use App\Models\Guest;
 use Illuminate\Http\Request;
 use App\Http\Requests\GuestRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\GuestResource;
-use App\ReposatoryInterface\GuestRepositoryInterface;
+use App\RepositoryInterface\GuestRepositoryInterface;
 
 class GuestController extends Controller
 {
@@ -21,25 +20,21 @@ class GuestController extends Controller
         $this->guestRepository = $guestRepository;
     }
 
+
+    public function redirect(){
+        return $this->guestRepository->redirect();
+    }
+
+    public function handleCallback(Request $request,$sid){
+        return $this->guestRepository->handleCallback($request,$sid);
+
+    }
+
     public function index()
     {
         $guests = $this->guestRepository->all(10);
-        $data = [
-            'guests' => GuestResource::collection($guests),
-            'pagination' => [
-                'total' => $guests->total(),
-                'count' => $guests->count(),
-                'per_page' => $guests->perPage(),
-                'current_page' => $guests->currentPage(),
-                'total_pages' => $guests->lastPage(),
-                'first_page_url' => $guests->url(1),
-                'last_page_url' => $guests->url($guests->lastPage()),
-                'next_page_url' => $guests->nextPageUrl(),
-                'prev_page_url' => $guests->previousPageUrl(),
-                'path' => $guests->path(),
-            ]
-        ];
-        return $this->api_design(200, "All Guests", $data);
+
+        return $this->api_design(200, "All Guests", $guests);
     }
 
     public function register(GuestRequest $request)

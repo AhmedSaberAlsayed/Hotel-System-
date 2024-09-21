@@ -17,7 +17,7 @@ class CreateRoomsTable extends Migration
             $table->foreignId('RoomTypeID')->references('RoomTypeID')->on('room_types');
             $table->integer('Capacity');
             $table->decimal('PricePerNight', 8, 2);
-            $table->string('Status');
+            $table->string('Status')->default('open');
             $table->integer('Floor');
             $table->string('ViewType');
             $table->string('Features')->nullable();

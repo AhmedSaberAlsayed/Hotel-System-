@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Dashbord\Rooms;
 
-use App\Models\RoomType;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use App\Http\Requests\RoomTypeRequest;
 use App\Http\Resources\RoomTypeResource;
-use App\ReposatoryInterface\RoomTypeRepositoryInterface;
+use App\RepositoryInterface\RoomTypeRepositoryInterface;
 
 class RoomTypeController extends Controller
 {
@@ -16,6 +14,12 @@ class RoomTypeController extends Controller
     protected $roomTypeRepository;
     public function __construct(RoomTypeRepositoryInterface $roomTypeRepository ) {
         $this->roomTypeRepository = $roomTypeRepository;
+    }
+
+    public function index()
+    {
+        return $this->roomTypeRepository->all(20);
+
     }
     public function store(RoomTypeRequest $request)
 {
