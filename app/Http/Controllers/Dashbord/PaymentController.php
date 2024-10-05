@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Dashbord;
 
 use Stripe;
 use Carbon\Carbon;
+use App\Models\Booking;
+use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Api_designtrait;
 use Illuminate\Support\Facades\Auth;
@@ -24,50 +27,23 @@ class PaymentController extends Controller
 
     public function stripePost(Request $request)
     {
-        Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+        try {
+            // Initiating the Stripe payment process by calling the repository
+            $paymentData = $this->paymentRepository->stripe($request->all());
 
-        $userId = Auth()->user();
-        $customer = Stripe\Customer::create([
-            "address" => [
-                "line1" => "Virani Chowk",
-                "postal_code" => "360001",
-                "city" => "Rajkot",
-                "state" => "GJ",
-                "country" => "IN",
-            ],
-            "email" => $userId->Email,
-            "name" => $userId->FirstName . ' ' . $userId->LastName,
-            "source" => "tok_visa",
-        ]);
+            // Return the checkout URL and the payment details
+            return $this->api_design(200, 'Payment added successfully', [
+                'checkout_url' => $paymentData['checkout_url'],
+                'payment' => new PaymentResource($paymentData['payment'])
+            ]);
 
-        $charge = Stripe\Charge::create([
-            "amount" => $request->input('amount') * 100,
-            "currency" => $request->input('currency'),
-            "customer" => $customer->id,
-            "description" => $request->input('description'),
-            "shipping" => [
-                "name" => $request->input('shipping_name'),
-                "address" => [
-                    "line1" => $request->input('shipping_line1'),
-                    "postal_code" => $request->input('shipping_postal_code'),
-                    "city" => $request->input('shipping_city'),
-                    "state" => $request->input('shipping_state'),
-                    "country" => $request->input('shipping_country'),
-                ],
-            ]
-        ]);
-
-        $payment = $this->paymentRepository->create([
-            'BookingID' => 1,
-            'PaymentDate' => Carbon::now(),
-            'Amount' => $charge->amount,
-            'PaymentMethod' => "Credit Card",
-            'PaymentStatus' => $charge->status,
-            'InvoiceNumber' => $charge->id,
-        ]);
-        return $this->api_design( 200, ' payment Added succesully ', new PaymentResource($payment));
-
+        } catch (\Exception $e) {
+            // Log the error and return a failure response
+            Log::error('Payment initiation failed: ' . $e->getMessage());
+            return $this->api_design(500, 'Payment initiation failed',null, $e->getMessage());
+        }
     }
+
 
     public function index()
     {
@@ -77,9 +53,8 @@ class PaymentController extends Controller
 
     public function store(PaymentRequest $request)
     {
-        $payment = $this->paymentRepository->create($request->validated());
-        return $this->api_design( 200, ' payment Add succsfuly ', new PaymentResource($payment));
-
+        $payment = $this->paymentRepository->create($request->all());
+        return  $payment;
     }
 
     public function show($id)
@@ -111,5 +86,18 @@ class PaymentController extends Controller
             return $this->api_design( 404, 'Payment not found');
         }
         return $this->api_design( 200, 'Payment deleted successfully ', new PaymentResource($payment));
+    }
+
+
+    public function handleSuccess(Request $request)
+    {
+        try {
+            $payment = $this->paymentRepository->handleSuccess($request->all());
+            return $this->api_design( 200, "payment paid succussfuly", new PaymentResource($payment));
+
+        } catch (\Exception $e) {
+            Log::error('Payment handling failed: ' . $e->getMessage());
+            return $this->api_design( 500, "Failed to handle payment", null , $e->getMessage());
+        }
     }
 }

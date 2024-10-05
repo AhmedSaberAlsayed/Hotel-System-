@@ -7,12 +7,12 @@ use App\RepositoryInterface\RoomTypeRepositoryInterface;
 
 class RoomTypeRepository implements RoomTypeRepositoryInterface{
     public function all($paginate){
-        $roomType = RoomType::paginate($paginate);
+        $roomType = RoomType::with("rooms")->paginate($paginate);
         $data = [
             'roomType' => RoomTypeResource::collection($roomType),
             'pagination' => [
                 'total' => $roomType->total(),
-                'count' => $roomType->count(),
+                // 'count' => $roomType->count(),
                 'per_page' => $roomType->perPage(),
                 'current_page' => $roomType->currentPage(),
                 'total_pages' => $roomType->lastPage(),
@@ -29,7 +29,7 @@ class RoomTypeRepository implements RoomTypeRepositoryInterface{
         return RoomType::create($data);
     }
     public function find($id){
-        return RoomType::find($id);
+        return RoomType::with("rooms")->find($id);
     }
     public function update($id, $data) {
         $roomType = RoomType::find($id);

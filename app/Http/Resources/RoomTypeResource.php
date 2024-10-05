@@ -19,6 +19,8 @@ class RoomTypeResource extends JsonResource
             'RoomTypeName'=>$this->RoomTypeName ,
             'Description'=>$this->Description ,
             'BasePrice'=>$this->BasePrice ,
+            'Rooms' => RoomResource::collection($this->whenLoaded('rooms')),
+
         ];
     }
 }

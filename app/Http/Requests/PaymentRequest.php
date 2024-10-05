@@ -23,13 +23,13 @@ class PaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'PaymentStatus'=>'required',
-        'InvoiceNumber'=>'required',
+        'PaymentStatus'=>'',
+        'InvoiceNumber'=>'',
         'BookingID' => 'required|exists:bookings,BookingID',
-        'Amount' => 'required|numeric|min:0.01',
-        'PaymentDate' => 'required|date',
+        'Amount' => '',
+        'PaymentDate' => '',
         'PaymentMethod' => [
-                'required',
+                '',
                 Rule::in(['Credit Card', 'Cash', 'Bank Transfer', 'Mobile Payment']), // Acceptable payment methods
         ],
         [

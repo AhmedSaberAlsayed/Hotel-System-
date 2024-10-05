@@ -24,10 +24,9 @@ class BookingRequest extends FormRequest
         return [
         'GuestID' =>"required",
         'RoomID' =>"required",
-        'CheckInDate'=>"required|date",
-        'CheckOutDate'=>"required|date",
+        'CheckInDate' => 'required|date|after_or_equal:today',
+        'CheckOutDate' => 'required|date|after:CheckInDate',
         'BookingDate'=>"date",
-        'TotalPrice'=>"",
         'PaymentStatus'=>"required",
         'BookingStatus'=>"required",
         'SpecialRequests'=>"",

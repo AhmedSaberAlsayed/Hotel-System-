@@ -42,4 +42,6 @@ Route::apiResource('Room',RoomController::class);
 Route::apiResource('Services',ServiceController::class);
 Route::apiResource('Booking',BookingController::class);
 Route::apiResource('Payment',PaymentController::class);
-Route::post('stripe-payment', [PaymentController::class, 'stripePost'])->middleware('auth:sanctum');
+Route::post('Payment/stripe', [PaymentController::class, 'stripePost'])->middleware('auth:sanctum');
+Route::get('/payment/success', [PaymentController::class, 'handleSuccess'])->name('payment.success');
+Route::post('/payment/cancel', [PaymentController::class, 'handleCancel'])->name('payment.cancel');

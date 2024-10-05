@@ -10,15 +10,13 @@ class CreateGuestsTable extends Migration
     {
         Schema::create('guests', function (Blueprint $table) {
             $table->id('GuestID');
-            $table->string('FirstName');
-            $table->string('LastName');
+            $table->string('Name');
             $table->string('Email')->unique();
-            $table->string('Phone');
-            $table->string('Password');
-            $table->string('Address');
-            $table->date('DateOfBirth');
+            $table->string('Phone')->nullable();
+            $table->string('Password')->nullable();
+            $table->string('Address')->nullable();
             $table->string('socialID')->nullable();
-            $table->string('socialType')->nullable();
+            $table->enum("LoginType",["normal","social"]);
             $table->integer('LoyaltyPoints')->default(0);
             $table->string('MembershipLevel')->default('Bronze');
             $table->timestamps();

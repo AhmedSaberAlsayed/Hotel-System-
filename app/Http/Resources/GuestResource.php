@@ -15,14 +15,13 @@ class GuestResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'=>$this->GuestID,
-        'FirstName'=>$this->FirstName,
-        'Password'=>$this->Password,
-        'LastName'=>$this->LastName ,
+        'id'=>$this->GuestID,
+        'Name'=>$this->Name,
         'Email'=>$this->Email ,
-        'Phone'=>$this->Phone ,
+        'Password'=>$this->Password,
+        'LoginType'=>$this->LoginType,
+        'Phone'=>$this->Phone,
         'Address'=>$this->Address ,
-        'DateOfBirth'=>$this->DateOfBirth ,
         'LoyaltyPoints'=>$this->LoyaltyPoints ,
         'MembershipLevel'=>$this->MembershipLevel,
         ];

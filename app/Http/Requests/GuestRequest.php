@@ -23,13 +23,12 @@ class GuestRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'FirstName'=>"required",
-        'LastName'=>"required",
+        'Name'=>"required",
+        'LoginType'=>"required",
         'Email'=>"required",
         'Password'=>"required",
         'Phone'=>"required",
         'Address'=>"required",
-        'DateOfBirth'=>"required",
         'LoyaltyPoints'=>"",
         'MembershipLevel'=>"",
         ];

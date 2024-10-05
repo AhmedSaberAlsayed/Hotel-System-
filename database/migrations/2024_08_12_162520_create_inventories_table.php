@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('InventoryID');
             $table->string('ItemName');
             $table->integer('QuantityInStock');
-            $table->foreignId('SupplierID')->on('Suppliers');
+            $table->foreignId('SupplierID')->on('Suppliers')->references('SupplierID');
             $table->timestamps();
         });
     }

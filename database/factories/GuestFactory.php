@@ -17,13 +17,12 @@ class GuestFactory extends Factory
     public function definition(): array
     {
         return [
-            'FirstName' => $this->faker->firstName, // Generates a random first name
-            'LastName' => $this->faker->lastName,
+            'Name' => $this->faker->name, // Generates a random first name
+            'LoginType' => "normal",
             'Email' => $this->faker->unique()->safeEmail,
             'Password' => "123456789",
             'Phone'=> $this->faker->phoneNumber,
             'Address' => $this->faker->address,
-            'DateOfBirth' => $this->faker->date,
             'LoyaltyPoints'=> 1,
             'MembershipLevel' => "bronze",
 

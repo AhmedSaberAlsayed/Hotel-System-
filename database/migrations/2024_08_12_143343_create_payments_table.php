@@ -14,7 +14,7 @@ class CreatePaymentsTable extends Migration
             $table->date('PaymentDate');
             $table->decimal('Amount', 8, 2);
             $table->string('PaymentMethod');
-            $table->string('PaymentStatus');
+            $table->enum('PaymentStatus',['not paid','paid','pending']);
             $table->string('InvoiceNumber')->nullable();
             $table->timestamps();
         });

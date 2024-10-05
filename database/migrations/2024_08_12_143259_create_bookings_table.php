@@ -18,7 +18,7 @@ class CreateBookingsTable extends Migration
             $table->date('CheckOutDate');
             $table->date('BookingDate');
             $table->decimal('TotalPrice', 8, 2);
-            $table->string('PaymentStatus');
+            $table->enum('PaymentStatus',['not paid','paid','pending']);
             $table->string('BookingStatus');
             $table->text('SpecialRequests')->nullable();
             $table->timestamps();

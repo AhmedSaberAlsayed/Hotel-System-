@@ -12,15 +12,15 @@ class Guest extends Model
 
     use HasFactory;
     protected $fillable = [
-        'FirstName',
-        'LastName',
+        'Name',
         'Email',
         'Password',
         'Phone',
         'Address',
-        'DateOfBirth',
         'LoyaltyPoints',
         'MembershipLevel',
+        'LoginType',
+        'socialID',
     ];
 
     protected $primaryKey = 'GuestID';

@@ -23,14 +23,11 @@ class BookingController extends Controller
 
     public function store(BookingRequest $request, Booking $booking)
     {
-
-
         try {
             // searvice code for bookings
             $booking = $this-> bookingRepo->create($request, $booking);
             // queue code for bookings mails
             $guest = $booking->guest->Email;
-
         $job= (new SendBookingConfirmationEmail($guest, $booking))->delay(Carbon::now()->addSeconds(5));
             dispatch($job);
 
