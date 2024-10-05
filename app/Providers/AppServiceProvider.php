@@ -10,6 +10,7 @@ use App\Repository\PaymentRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\FeedbackRepository;
 use App\Repository\RoomTypeRepository;
+use App\Repository\InventoryRepository;
 use App\Repository\SuppliersRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repository\DepartmentRepository;
@@ -22,6 +23,7 @@ use App\RepositoryInterface\PaymentRepositoryInterface;
 use App\RepositoryInterface\ServiceRepositoryInterface;
 use App\RepositoryInterface\FeedbackRepositoryInterface;
 use App\RepositoryInterface\RoomTypeRepositoryInterface;
+use App\RepositoryInterface\InventoryRepositoryInterface;
 use App\RepositoryInterface\SuppliersRepositoryInterface;
 use App\RepositoryInterface\DepartmentRepositoryInterface;
 use App\RepositoryInterface\RoomMaintenanceRepositoryInterface;
@@ -45,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
         $this->app->bind(BookingRepositoryInterface::class, BookingRepository::class);
         $this->app->bind(SuppliersRepositoryInterface::class, SuppliersRepository::class);
+        $this->app->bind(InventoryRepositoryInterface::class, InventoryRepository::class);
 
     }
 
